@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 
-namespace Persistence
+namespace Persistence.Repositories
 {
     /// <summary>
     /// Generische Zugriffsmethoden für eine Entität
@@ -41,9 +41,13 @@ namespace Persistence
         /// <param name="includeProperties"></param>
         /// <returns></returns>
         public virtual async Task<TEntity[]> GetAsync(Expression<Func<TEntity, bool>>? filter = null,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null)
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null, params string[] includeProperties)
         {
             IQueryable<TEntity> query = _dbSet;
+            foreach (string includeProperty in includeProperties!)
+            {
+                query = query.Include(includeProperty);
+            }
             if (filter != null)
             {
                 query = query.Where(filter);
@@ -133,6 +137,5 @@ namespace Persistence
             }
             return await query.CountAsync();
         }
-
     }
 }

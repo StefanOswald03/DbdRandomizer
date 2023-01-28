@@ -20,7 +20,7 @@ namespace Core.Contracts
         /// <param name="orderBy"></param>
         /// <returns></returns>
         Task<TEntity[]> GetAsync(Expression<Func<TEntity, bool>>? filter = null,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null);
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null, params string[] includeProperties);
 
         /// <summary>
         ///     Eindeutige Entität oder null zurückliefern
@@ -65,6 +65,5 @@ namespace Core.Contracts
         /// <param name="includeProperties"></param>
         /// <returns></returns>
         Task<int> CountAsync(Expression<Func<TEntity, bool>>? filter = null);
-
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Persistence.Repositories;
 
 namespace Persistence
 {
@@ -14,14 +15,12 @@ namespace Persistence
         public UnitOfWork()
         {
             DbContext = new ApplicationDbContext();
-            //PersonRepository = new PersonRepository(DbContext);
-            //VaccinationRepository = new VaccinationRepository(DbContext);
+            Category = new CategoryRepository(DbContext);
+            Perk = new PerkRepository(DbContext);
         }
 
-        //public IPersonRepository PersonRepository { get; }
-
-        //public IVaccinationRepository VaccinationRepository { get; }
-
+        public ICategoryRepository Category { get; }
+        public IPerkRepository Perk { get; set; }
 
         public async Task<int> SaveChangesAsync()
         {
