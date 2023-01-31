@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Core.Entities
 {
+    [Index(nameof(Perk.Name),IsUnique =true)]
     public class Perk : EntityObject
     {
         public Perk()
@@ -22,9 +24,6 @@ namespace Core.Entities
 
         [Required]
         public string Role { get; set; } = string.Empty;
-
-        [Required]
-        public string Modifier { get; set; } = string.Empty;
 
         [Required]
         public string ImageUrl = string.Empty;

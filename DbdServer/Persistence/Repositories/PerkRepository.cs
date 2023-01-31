@@ -15,7 +15,7 @@ namespace Persistence.Repositories
 
         public async Task ClearTable()
         {
-            await _dbContext.Database.ExecuteSqlRawAsync($"TRUNCATE TABLE {nameof(ApplicationDbContext.Perks)}");
+            await _dbContext.Database.ExecuteSqlRawAsync($"Delete from {nameof(ApplicationDbContext.Perks)}");
             _dbContext.ChangeTracker.Clear();
             await _dbContext.SaveChangesAsync();
         }

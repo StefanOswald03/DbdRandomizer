@@ -18,35 +18,43 @@ namespace Base.Helper
         public static string? GetFullNameInApplicationTree(string fileName)
         {
             if (string.IsNullOrEmpty(fileName)) return null;
-            var path = Environment.CurrentDirectory;
+            string? path = Environment.CurrentDirectory;
             // string path = AppDomain.CurrentDomain.BaseDirectory;
-            while (path != Directory.GetDirectoryRoot(path) &&
-                   Directory.GetFiles(path, fileName).Length == 0)
+            if(path != null)
             {
-                path = Directory.GetParent(path)?.FullName;
+                while (path != Directory.GetDirectoryRoot(path!) &&
+                    Directory.GetFiles(path!, fileName).Length == 0)
+                {
+                    path = Directory.GetParent(path!)?.FullName;
+                }
+                if (Directory.GetFiles(path!, fileName).Length > 0) // Datei existiert
+                {
+                    string fullName = Path.Combine(path!, fileName);
+                    return fullName;
+                }
             }
-            if (Directory.GetFiles(path, fileName).Length > 0) // Datei existiert
-            {
-                string fullName = Path.Combine(path, fileName);
-                return fullName;
-            }
+
             return null;
         }
-        public static string GetFullFolderNameInApplicationTree(string folderName)
+        public static string? GetFullFolderNameInApplicationTree(string folderName)
         {
             if (string.IsNullOrEmpty(folderName)) return null;
             //string path = Environment.CurrentDirectory;
-            string path = AppDomain.CurrentDomain.BaseDirectory;
-            while (path != Directory.GetDirectoryRoot(path) &&
-                Directory.GetDirectories(path, folderName).Length == 0)
+            string? path = AppDomain.CurrentDomain.BaseDirectory;
+            if(path != null)
             {
-                path = Directory.GetParent(path).FullName;
+                while (path != Directory.GetDirectoryRoot(path!) &&
+                Directory.GetDirectories(path!, folderName).Length == 0)
+                {
+                    path = Directory.GetParent(path!)?.FullName;
+                }
+                if (Directory.GetDirectories(path!, folderName).Length > 0) // Verzeichnis existiert
+                {
+                    string fullName = Path.Combine(path!, folderName);
+                    return fullName;
+                }
             }
-            if (Directory.GetDirectories(path, folderName).Length > 0) // Verzeichnis existiert
-            {
-                string fullName = Path.Combine(path, folderName);
-                return fullName;
-            }
+            
             return null;
         }
 
@@ -61,7 +69,7 @@ namespace Base.Helper
         {
             int startLine = 0; // soll die Titelzeile überlesen werden startet der Zeilenzähler bei 1
             int subtractIndex = 0; // und eine Zeile ist zu überlesen
-            string fullFileName = GetFullNameInApplicationTree(fileName); // csv-Datei liegt im Projektverzeichnis
+            string? fullFileName = GetFullNameInApplicationTree(fileName); // csv-Datei liegt im Projektverzeichnis
             if (fullFileName == null)
             {
                 throw new FileNotFoundException("File " + fileName + " not found in applicationpath");
