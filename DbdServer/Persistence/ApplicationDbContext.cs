@@ -14,7 +14,7 @@ namespace Persistence
 {
     public class ApplicationDbContext : DbContext
     {
-        public DbSet<PerkCategory> Categories => Set<PerkCategory>();
+        public DbSet<Category> Categories => Set<Category>();
         public DbSet<Perk> Perks => Set<Perk>();
 
         public ApplicationDbContext()

@@ -13,7 +13,7 @@ namespace Core.Entities
     {
         public Perk()
         {
-            Categories = new HashSet<PerkCategory>();
+            Categories = new HashSet<Category>();
         }
 
         [Required]
@@ -29,6 +29,6 @@ namespace Core.Entities
         public string ImageUrl = string.Empty;
 
         [Required]
-        public ICollection<PerkCategory> Categories { get; set; }
+        public ICollection<Category> Categories { get; set; }
     }
 }

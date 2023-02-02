@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Persistence.Repositories
 {
-    internal class CategoryRepository : GenericRepository<PerkCategory>, ICategoryRepository
+    internal class CategoryRepository : GenericRepository<Category>, ICategoryRepository
     {
         private readonly ApplicationDbContext _dbContext;
 

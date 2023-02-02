@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Core.Contracts
 {
-    public interface ICategoryRepository : IGenericRepository<PerkCategory>
+    public interface ICategoryRepository : IGenericRepository<Category>
     {
         Task ClearTable();
     }

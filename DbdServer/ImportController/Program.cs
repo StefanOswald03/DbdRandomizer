@@ -15,8 +15,7 @@ await using var unitOfWork = new UnitOfWork();
 Console.WriteLine("Clear Tables Perk and Category");
 await unitOfWork.Perk.ClearTable();
 await unitOfWork.Category.ClearTable();
-//await unitOfWork.DeleteDatabaseAsync();
-//await unitOfWork.MigrateDatabaseAsync();
+
 var perks = await GetPerksFromJsonAsync();
 
 if (perks != null)
@@ -37,7 +36,7 @@ async Task<IList<Perk>?> GetPerksFromJsonAsync()
     if (path.IsNullOrEmpty())
         return null;
 
-    var js = new JsonSerializer();
+    var jsonSerializer = new JsonSerializer();
     var json = await File.ReadAllTextAsync(path!);
     dynamic? jsonObject = JsonConvert.DeserializeObject(json);
     var perks = new List<Perk>();
@@ -45,24 +44,24 @@ async Task<IList<Perk>?> GetPerksFromJsonAsync()
     if (jsonObject != null)
     {
         
-        var categoryList = new List<PerkCategory>();
+        var categoryList = new List<Category>();
         foreach (var perk in jsonObject)
         {
             if (perk == null)
                 continue;
 
-            Perk p = new Perk();
+            Perk newPerk = new Perk();
 
-            var categories = perk.Value.categories;
-            if (categories != null)
+            var currentCategories = perk.Value.categories;
+            if (currentCategories != null)
             {
-                foreach (var cat in categories)
+                foreach (var cat in currentCategories)
                 {
                     var newCategory = cat.ToString();
 
                     if (!categoryList.Any(x => x.Name == newCategory))
                     {
-                        categoryList.Add(new PerkCategory()
+                        categoryList.Add(new Category()
                         {
                             Name = newCategory,
                             Role = perk.Value.role
@@ -70,16 +69,15 @@ async Task<IList<Perk>?> GetPerksFromJsonAsync()
                         Console.WriteLine(newCategory);
                     }
 
-                    p.Categories.Add(categoryList.Single(c => c.Name == newCategory));
+                    newPerk.Categories.Add(categoryList.Single(c => c.Name == newCategory));
                 }
             }
             
-            p.Name = perk.Value.name;
-            p.Description = perk.Value.description;
-            p.Role = perk.Value.role;
-            var tmpUrl = (string)perk.Value.image;
-            p.ImageUrl = BaseImageURL + tmpUrl[2..];
-            perks.Add(p);
+            newPerk.Name = perk.Value.name;
+            newPerk.Description = perk.Value.description;
+            newPerk.Role = perk.Value.role;
+            newPerk.ImageUrl = BaseImageURL + ((string)perk.Value.image)[2..];
+            perks.Add(newPerk);
         }
     }
 

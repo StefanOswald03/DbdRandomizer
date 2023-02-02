@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace Core.Entities
 {
-    [Index(nameof(PerkCategory.Name), IsUnique = true)]
-    [Index(nameof(PerkCategory.MyName), IsUnique = true)]
-    public class PerkCategory : EntityObject
+    [Index(nameof(Category.Name), IsUnique = true)]
+    [Index(nameof(Category.MyName), IsUnique = true)]
+    public class Category : EntityObject
     {
-        public PerkCategory()
+        public Category()
         {
             Perks = new HashSet<Perk>();
         }
