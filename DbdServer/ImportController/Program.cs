@@ -32,18 +32,13 @@ else
 
 async Task<IList<Perk>?> GetPerksFromJsonAsync()
 {
-    var path = MyFile.GetFullNameInApplicationTree(PerkFileName);
-    if (path.IsNullOrEmpty())
+    dynamic? jsonObject = await ReadandConvertJsonAsync();
+    if (jsonObject == null)
         return null;
 
-    var jsonSerializer = new JsonSerializer();
-    var json = await File.ReadAllTextAsync(path!);
-    dynamic? jsonObject = JsonConvert.DeserializeObject(json);
     var perks = new List<Perk>();
-
     if (jsonObject != null)
     {
-        
         var categoryList = new List<Category>();
         foreach (var perk in jsonObject)
         {
@@ -82,4 +77,15 @@ async Task<IList<Perk>?> GetPerksFromJsonAsync()
     }
 
     return perks;
+}
+
+async Task<dynamic?> ReadandConvertJsonAsync()
+{
+    var path = MyFile.GetFullNameInApplicationTree(PerkFileName);
+    if (path.IsNullOrEmpty())
+        return null;
+
+    var jsonSerializer = new JsonSerializer();
+    var json = await File.ReadAllTextAsync(path!);
+    return JsonConvert.DeserializeObject(json);
 }
