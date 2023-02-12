@@ -19,5 +19,15 @@ namespace Persistence.Repositories
             _dbContext.ChangeTracker.Clear();
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<Perk[]> GetFourRandom(string role)
+        {
+            Random random = new Random();
+            var allPerks = await _dbContext.Perks.Where(p => p.Role == role).ToListAsync();
+            var randomPerks = allPerks.OrderBy(x => random.Next())
+                .Take(4)
+                .ToArray();
+            return randomPerks;
+        }
     }
 }

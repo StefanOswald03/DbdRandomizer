@@ -21,8 +21,8 @@ var perks = await GetPerksFromJsonAsync();
 if (perks != null)
 {
     await unitOfWork.Perk.AddRangeAsync(perks);
-    var count = await unitOfWork.SaveChangesAsync();
-    Console.WriteLine($"{count} Perks are imported to the db!");
+    await unitOfWork.SaveChangesAsync();
+    Console.WriteLine($"{perks.Count} Perks are imported to the db!");
 }
 else
 {
