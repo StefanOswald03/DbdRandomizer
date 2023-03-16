@@ -10,6 +10,6 @@ namespace Core.Contracts
     public interface IPerkRepository : IGenericRepository<Perk>
     {
         Task ClearTable();
-        Task<Perk[]> GetFourRandom(string role);
+        Task<Perk[]> GetFourRandomAsync(string role);
     }
 }

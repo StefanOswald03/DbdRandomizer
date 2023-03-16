@@ -20,13 +20,27 @@ namespace Persistence.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<Perk[]> GetFourRandom(string role)
+        public async Task<Perk[]> GetFourRandomAsync(string role)
         {
-            Random random = new Random();
-            var allPerks = await _dbContext.Perks.Where(p => p.Role == role).ToListAsync();
-            var randomPerks = allPerks.OrderBy(x => random.Next())
+            Random random = new();
+            var allPerks = await _dbContext.Perks
+                .Where(p => p.Role == role)
+                .OrderBy(p => p.Name)
+                .ToListAsync();
+
+            var randomPerks = allPerks
+                .OrderBy(x => random.Next())
                 .Take(4)
                 .ToArray();
+
+            const int ITEMS_PER_PAGE = 15;
+            foreach (var perk in randomPerks)
+            {
+                int index = allPerks.IndexOf(perk);
+                int page = index / ITEMS_PER_PAGE;
+                perk.Page = page;
+            }
+
             return randomPerks;
         }
     }

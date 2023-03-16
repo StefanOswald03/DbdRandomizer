@@ -6,7 +6,7 @@ using Core.Entities;
 namespace UserManager.Api.Controllers
 {
     #region DTOs
-    public record PerkGetDto(string Name, string Description, string ImageURL);
+    public record PerkGetDto(string Name, string Description, string ImageURL, int page);
     #endregion
 
     /// <summary>
@@ -41,13 +41,13 @@ namespace UserManager.Api.Controllers
                 return BadRequest("Invalid Role!");
             }
 
-            var randomPerks = await UnitOfWork.Perk.GetFourRandom(role);
+            var randomPerks = await UnitOfWork.Perk.GetFourRandomAsync(role);
             if (randomPerks.Length != 4)
             {
                 return BadRequest("No 4 perks found!");
             }
             //BUG: Image URL not Working
-            var perkGetDtos = randomPerks.Select(p => new PerkGetDto(p.Name, p.Description, p.ImageUrl));
+            var perkGetDtos = randomPerks.Select(p => new PerkGetDto(p.Name, p.Description, p.ImageUrl, p.Page));
 
 
             return Ok(perkGetDtos);
