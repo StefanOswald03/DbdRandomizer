@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,5 +31,8 @@ namespace Core.Entities
 
         [Required]
         public ICollection<Category> Categories { get; set; }
+
+        [NotMapped]
+        public int Page { get; set; }
     }
 }

@@ -20,7 +20,7 @@ namespace Persistence
         }
 
         public ICategoryRepository Category { get; }
-        public IPerkRepository Perk { get; set; }
+        public IPerkRepository Perk { get; }
 
         public async Task<int> SaveChangesAsync()
         {
