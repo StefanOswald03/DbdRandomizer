@@ -29,7 +29,7 @@ else
     Console.WriteLine("No perks were read in.");
 }
 
-
+// https://github.com/MrTipson/otz-builds/blob/master/build/getPerks.js
 async Task<IList<Perk>?> GetPerksFromJsonAsync()
 {
     dynamic? jsonObject = await ReadandConvertJsonAsync();
