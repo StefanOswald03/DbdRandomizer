@@ -20,6 +20,7 @@ await unitOfWork.Category.ClearTable();
 
 var perks = await ParsePerks(KILLER_URL,"killer");
 perks.AddRange(await ParsePerks(SURVIVOR_URL, "survivor"));
+await AddCategoriesToPerksAsync(perks);
 
 if (perks != null)
 {
@@ -33,52 +34,45 @@ else
 }
 
 // https://github.com/MrTipson/otz-builds/blob/master/build/getPerks.js
-async Task<IList<Perk>?> GetPerksFromJsonAsync()
+async Task AddCategoriesToPerksAsync(List<Perk> perks)
 {
     dynamic? jsonObject = await ReadandConvertJsonAsync();
     if (jsonObject == null)
-        return null;
-
-    var perks = new List<Perk>();
+        return;
+    var categoryList = new List<Category>();
     if (jsonObject != null)
     {
-        var categoryList = new List<Category>();
         foreach (var perk in jsonObject)
         {
             if (perk == null)
                 continue;
-
-            Perk newPerk = new Perk();
 
             var currentCategories = perk.Value.categories;
             if (currentCategories != null)
             {
                 foreach (var cat in currentCategories)
                 {
-                    var newCategory = cat.ToString();
-
-                    if (!categoryList.Any(x => x.Name == newCategory))
+                    var newCategory = new Category()
                     {
-                        categoryList.Add(new Category()
-                        {
-                            Name = newCategory,
-                            Role = perk.Value.role
-                    });
+                        Name = cat.ToString(),
+                        Role = perk.Value.role
+                    };
+
+                    if (!categoryList.Any(x => x.Name == newCategory.Name))
+                    {
+                        categoryList.Add(newCategory);
+                        perks.SingleOrDefault(p => p.Name == perk.Value.name.ToString())?.Categories.Add(newCategory);
                         Console.WriteLine(newCategory);
                     }
-
-                    newPerk.Categories.Add(categoryList.Single(c => c.Name == newCategory));
+                    else
+                    {
+                        perks.SingleOrDefault(p => p.Name == perk.Value.name.ToString())?.Categories
+                            .Add(categoryList.Single(c => c.Name == newCategory.Name));
+                    }
                 }
             }
-            
-            newPerk.Name = perk.Value.name;
-            newPerk.Description = perk.Value.description;
-            newPerk.Role = perk.Value.role;
-            perks.Add(newPerk);
         }
     }
-
-    return perks;
 }
 
 async Task<dynamic?> ReadandConvertJsonAsync()
