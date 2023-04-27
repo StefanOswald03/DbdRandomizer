@@ -57,22 +57,63 @@ async Task AddCategoriesToPerksAsync(List<Perk> perks)
                         Name = cat.ToString(),
                         Role = perk.Value.role
                     };
+                    var perkName = perk.Value.name.ToString().Replace("'", "’").Replace("&nbsp;", " ").Replace("Hex: Blood Favor", "Hex: Blood Favour");
 
                     if (!categoryList.Any(x => x.Name == newCategory.Name))
                     {
                         categoryList.Add(newCategory);
-                        perks.SingleOrDefault(p => p.Name == perk.Value.name.ToString())?.Categories.Add(newCategory);
+                        //await Console.Out.WriteLineAsync(perk.Value.name.ToString());
+                        perks.Single(p => String.Equals(p.Name, perkName, StringComparison.OrdinalIgnoreCase))?.Categories.Add(newCategory);
                         Console.WriteLine(newCategory);
                     }
                     else
                     {
-                        perks.SingleOrDefault(p => p.Name == perk.Value.name.ToString())?.Categories
+                        //await Console.Out.WriteLineAsync(perk.Value.name.ToString());
+                        //try
+                        //{
+                            perks.Single(p => String.Equals(p.Name, perkName, StringComparison.OrdinalIgnoreCase))?.Categories
                             .Add(categoryList.Single(c => c.Name == newCategory.Name));
+                        //}
+                        //catch(Exception ex)
+                        //{
+                        //    perks.ForEach(p => DisplayStringDifference(p.Name, perkName));
+                        //    throw ex;
+                        //}
                     }
                 }
             }
         }
     }
+    var noCategory = perks.Where(p => p.Categories.Count == 0).ToList();
+}
+
+static void DisplayStringDifference(string string1, string string2)
+{
+    int minLength = Math.Min(string1.Length, string2.Length);
+    int maxLength = Math.Max(string1.Length, string2.Length);
+
+    for (int i = 0; i < minLength; i++)
+    {
+        if (string1[i] != string2[i])
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write(string1[i]);
+            Console.ResetColor();
+        }
+        else
+        {
+            Console.Write(string1[i]);
+        }
+    }
+
+    if (maxLength > minLength)
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write(string1.Length > string2.Length ? string1.Substring(minLength) : string2.Substring(minLength));
+        Console.ResetColor();
+    }
+
+    Console.WriteLine();
 }
 
 async Task<dynamic?> ReadandConvertJsonAsync()
@@ -112,7 +153,7 @@ async Task<List<Perk>> ParsePerks(string url, string role)
     var perks = tbodyNode.Descendants("tr").Skip(1).Select(tr =>
     {
         var imageUrl = tr.Descendants("a").ElementAtOrDefault(0)?.GetAttributeValue("href", "").Replace(@"/revision/latest.+", "");
-        var name = tr.Descendants("a").ElementAtOrDefault(1)?.InnerText.Replace("&amp;","&");
+        var name = tr.Descendants("a").ElementAtOrDefault(1)?.InnerText.Replace("&amp;", "&").Replace("&nbsp;", " ").Replace("Barbecue & Chilli", "Barbecue & Chili").Replace("'","’").Replace("é", "e").Replace("à","a");
         var formattedPerkDescNode = tr.Descendants("div").FirstOrDefault(div => div.HasClass("formattedPerkDesc"));
         var description = formattedPerkDescNode?.InnerText;
         return new Perk { ImageUrl = imageUrl, Name = name, Description = description, Role = role };
