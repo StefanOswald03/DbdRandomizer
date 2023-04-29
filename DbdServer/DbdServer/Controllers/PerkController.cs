@@ -47,7 +47,7 @@ namespace UserManager.Api.Controllers
                 return BadRequest("No 4 perks found!");
             }
             //BUG: Image URL not Working
-            var perkGetDtos = randomPerks.Select(p => new PerkGetDto(p.Name, p.Description, p.ImageUrl, p.Page));
+            var perkGetDtos = randomPerks.Select(p => new PerkGetDto(p.Name, p.Description, p.ImageUrl, p.Page)).ToArray();
 
 
             return Ok(perkGetDtos);

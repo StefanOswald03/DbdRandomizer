@@ -20,6 +20,7 @@ namespace Persistence.Repositories
 
         public async Task ClearTable()
         {
+            await _dbContext.Database.ExecuteSqlRawAsync($"DBCC CHECKIDENT ('{nameof(ApplicationDbContext.Categories)}', RESEED, 0)");
             await _dbContext.Database.ExecuteSqlRawAsync($"Delete from {nameof(ApplicationDbContext.Categories)}");
             _dbContext.ChangeTracker.Clear();
             await _dbContext.SaveChangesAsync();

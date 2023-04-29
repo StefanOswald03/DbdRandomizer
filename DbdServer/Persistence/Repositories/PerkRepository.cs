@@ -13,8 +13,10 @@ namespace Persistence.Repositories
             _dbContext = dbContext;
         }
 
+        // This method schould clear the table Perks and reset the autoincrement
         public async Task ClearTable()
         {
+            await _dbContext.Database.ExecuteSqlRawAsync($"DBCC CHECKIDENT ('{nameof(ApplicationDbContext.Perks)}', RESEED, 0)");
             await _dbContext.Database.ExecuteSqlRawAsync($"Delete from {nameof(ApplicationDbContext.Perks)}");
             _dbContext.ChangeTracker.Clear();
             await _dbContext.SaveChangesAsync();

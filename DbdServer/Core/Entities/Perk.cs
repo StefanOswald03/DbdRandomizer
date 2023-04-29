@@ -27,7 +27,7 @@ namespace Core.Entities
         public string Role { get; set; } = string.Empty;
 
         [Required]
-        public string ImageUrl = string.Empty;
+        public string ImageUrl { get; set; } = string.Empty;
 
         [Required]
         public ICollection<Category> Categories { get; set; }

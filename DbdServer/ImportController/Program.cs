@@ -1,9 +1,6 @@
-﻿using System.Drawing;
-using System.Drawing.Text;
-using Base.Helper;
+﻿using Base.Helper;
 using Core.Entities;
 using HtmlAgilityPack;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Persistence;
@@ -36,7 +33,7 @@ else
 // https://github.com/MrTipson/otz-builds/blob/master/build/getPerks.js
 async Task AddCategoriesToPerksAsync(List<Perk> perks)
 {
-    dynamic? jsonObject = await ReadandConvertJsonAsync();
+    dynamic? jsonObject = await ReadAndConvertJsonAsync();
     if (jsonObject == null)
         return;
     var categoryList = new List<Category>();
@@ -116,7 +113,7 @@ static void DisplayStringDifference(string string1, string string2)
     Console.WriteLine();
 }
 
-async Task<dynamic?> ReadandConvertJsonAsync()
+async Task<dynamic?> ReadAndConvertJsonAsync()
 {
     var path = MyFile.GetFullNameInApplicationTree(PERK_FILE_NAME);
     if (path.IsNullOrEmpty())
