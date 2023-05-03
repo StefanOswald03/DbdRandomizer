@@ -8,6 +8,11 @@ using Persistence;
 const string PERK_FILE_NAME = "perks.json";
 const string SURVIVOR_URL = "https://deadbydaylight.fandom.com/wiki/Survivor_Perks";
 const string KILLER_URL = "https://deadbydaylight.fandom.com/wiki/Killer_Perks";
+Dictionary<string, int> roles = new Dictionary<string, int>()
+{
+    { "survivor", 1 },
+    { "killer", 2 }
+};
 
 Console.WriteLine("Import der Movies und Categories in die Datenbank");
 await using var unitOfWork = new UnitOfWork();
@@ -15,13 +20,13 @@ Console.WriteLine("Clear Tables Perk and Category");
 await unitOfWork.Perk.ClearTable();
 await unitOfWork.Category.ClearTable();
 
-var perks = await ParsePerks(KILLER_URL,"killer");
-perks.AddRange(await ParsePerks(SURVIVOR_URL, "survivor"));
-await AddCategoriesToPerksAsync(perks);
+var perks = await ParsePerks("https://deadbydaylight.fandom.com/wiki/Perks", "killer");
+perks.AddRange(await ParsePerks("https://deadbydaylight.fandom.com/wiki/Perks", "survivor"));
+//await AddCategoriesToPerksAsync(perks);
 
 if (perks != null)
 {
-    await unitOfWork.Perk.AddRangeAsync(perks);
+    //await unitOfWork.Perk.AddRangeAsync(perks);
     await unitOfWork.SaveChangesAsync();
     Console.WriteLine($"{perks.Count} Perks are imported to the db!");
 }
@@ -60,16 +65,16 @@ async Task AddCategoriesToPerksAsync(List<Perk> perks)
                     {
                         categoryList.Add(newCategory);
                         //await Console.Out.WriteLineAsync(perk.Value.name.ToString());
-                        perks.Single(p => String.Equals(p.Name, perkName, StringComparison.OrdinalIgnoreCase))?.Categories.Add(newCategory);
-                        Console.WriteLine(newCategory);
+                        //perks.Single(p => String.Equals(p.Name, perkName, StringComparison.OrdinalIgnoreCase))?.Categories.Add(newCategory);
+                        //Console.WriteLine(newCategory);
                     }
                     else
                     {
                         //await Console.Out.WriteLineAsync(perk.Value.name.ToString());
                         //try
                         //{
-                            perks.Single(p => String.Equals(p.Name, perkName, StringComparison.OrdinalIgnoreCase))?.Categories
-                            .Add(categoryList.Single(c => c.Name == newCategory.Name));
+                            //perks.Single(p => String.Equals(p.Name, perkName, StringComparison.OrdinalIgnoreCase))?.Categories
+                            //.Add(categoryList.Single(c => c.Name == newCategory.Name));
                         //}
                         //catch(Exception ex)
                         //{
@@ -124,7 +129,7 @@ async Task<dynamic?> ReadAndConvertJsonAsync()
     return JsonConvert.DeserializeObject(json);
 }
 
-async Task<List<Perk>> ParsePerks(string url, string role)
+async Task<List<PerkTranslation>> ParsePerks(string url, string role)
 {
     var httpClient = new HttpClient();
     var html = await httpClient.GetStringAsync(url);
@@ -145,44 +150,30 @@ async Task<List<Perk>> ParsePerks(string url, string role)
         node.Remove();
     }
 
+    var lal = roles[role];
+
     // Grab all rows in table
-    var tbodyNode = htmlDocument.DocumentNode.SelectSingleNode("//tbody");
+    var tbodyNode = htmlDocument.DocumentNode.SelectSingleNode($"//table[{roles[role]}]/tbody");
     var perks = tbodyNode.Descendants("tr").Skip(1).Select(tr =>
+    {
+        var imageUrl = tr.Descendants("a").ElementAtOrDefault(0)?.GetAttributeValue("href", "").Replace(@"/revision/latest.+", "");
+        return new Perk { ImageUrl = imageUrl, Role = role };
+    }).ToList();
+
+    var perkTranslations = tbodyNode.Descendants("tr").Skip(1).Select(tr =>
     {
         var imageUrl = tr.Descendants("a").ElementAtOrDefault(0)?.GetAttributeValue("href", "").Replace(@"/revision/latest.+", "");
         var name = tr.Descendants("a").ElementAtOrDefault(1)?.InnerText.Replace("&amp;", "&").Replace("&nbsp;", " ").Replace("Barbecue & Chilli", "Barbecue & Chili").Replace("'","’").Replace("é", "e").Replace("à","a");
         var formattedPerkDescNode = tr.Descendants("div").FirstOrDefault(div => div.HasClass("formattedPerkDesc"));
         var description = formattedPerkDescNode?.InnerText;
-        return new Perk { ImageUrl = imageUrl, Name = name, Description = description, Role = role };
+        return new PerkTranslation 
+        { 
+            Language = "en",
+            Name = name, 
+            Description = description,
+            Perk = perks.Single(p => p.ImageUrl == imageUrl)
+        };
     }).ToList();
 
-    //var tbodyNode = htmlDocument.DocumentNode.SelectSingleNode("//tbody");
-    //var trNodes = tbodyNode.Elements("tr").Skip(1);
-    //var perks = new List<Perk>();
-    //var count = 0;
-    //foreach (var x in trNodes)
-    //{
-    //    var imageUrl = x.Descendants("a").ElementAtOrDefault(0)?.GetAttributeValue("href", "").Replace(@"/revision/latest.+", "");
-    //    var name = x.Descendants("a").ElementAtOrDefault(1)?.GetAttributeValue("title", "");
-    //    var tmp = x.SelectNodes("//div[@class='formattedPerkDesc']").ElementAtOrDefault(count);
-    //    count++;
-    //    var description = x.SelectNodes("//div[@class='formattedPerkDesc']").ElementAtOrDefault(count)?.InnerText;
-    //    var perk = new Perk { ImageUrl = imageUrl, Name = name, Description = description, Role = role };
-    //    perks.Add(perk);
-    //}
-
-
-    //var perks = htmlDocument.DocumentNode.SelectSingleNode("//tbody").Elements("tr").Skip(1).Select(x =>
-    //{
-    //    // Remap each row into object
-    //    return new Perk
-    //    {
-    //        ImageUrl = x.Descendants("a").ElementAtOrDefault(0)?.GetAttributeValue("href", "").Replace(@"/revision/latest.+", "")!,
-    //        Name = x.Descendants("a").ElementAtOrDefault(1)?.GetAttributeValue("title", "")!,
-    //        Description = Uri.EscapeUriString(x.Descendants(".formattedPerkDesc").FirstOrDefault()?.InnerHtml?.Replace("/wiki/", "https://deadbydaylight.fandom.com/wiki/")),
-    //        Role = role
-    //    };
-    //}).ToList();
-
-    return perks;
+    return perkTranslations;
 }

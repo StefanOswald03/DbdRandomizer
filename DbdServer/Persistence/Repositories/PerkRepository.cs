@@ -27,7 +27,7 @@ namespace Persistence.Repositories
             Random random = new();
             var allPerks = await _dbContext.Perks
                 .Where(p => p.Role == role)
-                .OrderBy(p => p.Name)
+                //.OrderBy(p => p.Name)
                 .ToListAsync();
 
             var randomPerks = allPerks

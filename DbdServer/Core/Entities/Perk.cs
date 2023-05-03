@@ -9,19 +9,12 @@ using System.Threading.Tasks;
 
 namespace Core.Entities
 {
-    [Index(nameof(Perk.Name),IsUnique =true)]
     public class Perk : EntityObject
     {
         public Perk()
         {
             Categories = new HashSet<Category>();
         }
-
-        [Required]
-        public string Name { get; set; } = string.Empty;
-
-        [Required]
-        public string Description { get; set; } = string.Empty;
 
         [Required]
         public string Role { get; set; } = string.Empty;
