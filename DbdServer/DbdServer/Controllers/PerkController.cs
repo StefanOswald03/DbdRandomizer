@@ -3,7 +3,7 @@ using Core.Contracts;
 using System.ComponentModel.DataAnnotations;
 using Core.Entities;
 
-namespace UserManager.Api.Controllers
+namespace DbdServer.Controllers
 {
     #region DTOs
     public record PerkGetDto(string Name, string Description, string ImageURL, int page);
@@ -47,10 +47,10 @@ namespace UserManager.Api.Controllers
                 return BadRequest("No 4 perks found!");
             }
             //BUG: Image URL not Working
-            var perkGetDtos = randomPerks.Select(p => new PerkGetDto(p.Name, p.Description, p.ImageUrl, p.Page)).ToArray();
+            //var perkGetDtos = randomPerks.Select(p => new PerkGetDto(p.Name, p.Description, p.ImageUrl, p.Page)).ToArray();
 
 
-            return Ok(perkGetDtos);
+            return Ok();
         }
 
     }

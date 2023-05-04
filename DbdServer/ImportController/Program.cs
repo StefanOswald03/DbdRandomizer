@@ -6,8 +6,8 @@ using Newtonsoft.Json;
 using Persistence;
 
 const string PERK_FILE_NAME = "perks.json";
-const string SURVIVOR_URL = "https://deadbydaylight.fandom.com/wiki/Survivor_Perks";
-const string KILLER_URL = "https://deadbydaylight.fandom.com/wiki/Killer_Perks";
+const string ENGLISH_PERKS_URL = "https://deadbydaylight.fandom.com/wiki/Perks";
+const string GERMAN_PERKS_URL = "https://deadbydaylight-de.gamepedia.com/Perks";
 Dictionary<string, int> roles = new Dictionary<string, int>()
 {
     { "survivor", 1 },
@@ -16,19 +16,22 @@ Dictionary<string, int> roles = new Dictionary<string, int>()
 
 Console.WriteLine("Import der Movies und Categories in die Datenbank");
 await using var unitOfWork = new UnitOfWork();
-Console.WriteLine("Clear Tables Perk and Category");
-await unitOfWork.Perk.ClearTable();
-await unitOfWork.Category.ClearTable();
+Console.WriteLine("Delete Database");
+await unitOfWork.DeleteDatabaseAsync();
+Console.WriteLine("Recreate Database");
+await unitOfWork.MigrateDatabaseAsync();
 
-var perks = await ParsePerks("https://deadbydaylight.fandom.com/wiki/Perks", "killer");
-perks.AddRange(await ParsePerks("https://deadbydaylight.fandom.com/wiki/Perks", "survivor"));
-//await AddCategoriesToPerksAsync(perks);
+var (englishPerkTranslations, perks) = await ParsePerks(ENGLISH_PERKS_URL, "killer");
+var (survivorPerkTranslations, survivorPerks) = await ParsePerks(ENGLISH_PERKS_URL, "survivor");
+englishPerkTranslations.AddRange(survivorPerkTranslations);
+perks.AddRange(survivorPerks);
+await AddCategoriesToPerksAsync(englishPerkTranslations);
 
-if (perks != null)
+if (englishPerkTranslations != null)
 {
-    //await unitOfWork.Perk.AddRangeAsync(perks);
+    await unitOfWork.PerkTranslation.AddRangeAsync(englishPerkTranslations);
     await unitOfWork.SaveChangesAsync();
-    Console.WriteLine($"{perks.Count} Perks are imported to the db!");
+    Console.WriteLine($"{englishPerkTranslations.Count} Perks are imported to the db!");
 }
 else
 {
@@ -36,7 +39,7 @@ else
 }
 
 // https://github.com/MrTipson/otz-builds/blob/master/build/getPerks.js
-async Task AddCategoriesToPerksAsync(List<Perk> perks)
+async Task AddCategoriesToPerksAsync(List<PerkTranslation> perks)
 {
     dynamic? jsonObject = await ReadAndConvertJsonAsync();
     if (jsonObject == null)
@@ -65,7 +68,7 @@ async Task AddCategoriesToPerksAsync(List<Perk> perks)
                     {
                         categoryList.Add(newCategory);
                         //await Console.Out.WriteLineAsync(perk.Value.name.ToString());
-                        //perks.Single(p => String.Equals(p.Name, perkName, StringComparison.OrdinalIgnoreCase))?.Categories.Add(newCategory);
+                        perks.Single(p => String.Equals(p.Name, perkName, StringComparison.OrdinalIgnoreCase))?.Perk!.Categories.Add(newCategory);
                         //Console.WriteLine(newCategory);
                     }
                     else
@@ -73,8 +76,8 @@ async Task AddCategoriesToPerksAsync(List<Perk> perks)
                         //await Console.Out.WriteLineAsync(perk.Value.name.ToString());
                         //try
                         //{
-                            //perks.Single(p => String.Equals(p.Name, perkName, StringComparison.OrdinalIgnoreCase))?.Categories
-                            //.Add(categoryList.Single(c => c.Name == newCategory.Name));
+                            perks.Single(p => String.Equals(p.Name, perkName, StringComparison.OrdinalIgnoreCase))?.Perk!.Categories
+                            .Add(categoryList.Single(c => c.Name == newCategory.Name));
                         //}
                         //catch(Exception ex)
                         //{
@@ -86,7 +89,6 @@ async Task AddCategoriesToPerksAsync(List<Perk> perks)
             }
         }
     }
-    var noCategory = perks.Where(p => p.Categories.Count == 0).ToList();
 }
 
 static void DisplayStringDifference(string string1, string string2)
@@ -129,7 +131,7 @@ async Task<dynamic?> ReadAndConvertJsonAsync()
     return JsonConvert.DeserializeObject(json);
 }
 
-async Task<List<PerkTranslation>> ParsePerks(string url, string role)
+async Task<(List<PerkTranslation>, List<Perk>)> ParsePerks(string url, string role)
 {
     var httpClient = new HttpClient();
     var html = await httpClient.GetStringAsync(url);
@@ -175,5 +177,10 @@ async Task<List<PerkTranslation>> ParsePerks(string url, string role)
         };
     }).ToList();
 
-    return perkTranslations;
+    return (perkTranslations, perks);
+}
+
+async Task AddPerkTranslation(string url, string languageCode, int tableIndexMultiplier) 
+{
+
 }

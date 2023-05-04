@@ -16,6 +16,7 @@ namespace Persistence
     {
         public DbSet<Category> Categories => Set<Category>();
         public DbSet<Perk> Perks => Set<Perk>();
+        public DbSet<PerkTranslation> PerkTranslations => Set<PerkTranslation>();
 
         public ApplicationDbContext()
         {

@@ -15,7 +15,7 @@ using System;
 using System.IO;
 using System.Reflection;
 
-namespace Api
+namespace DbdServer
 {
     /// <summary>
     /// 

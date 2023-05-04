@@ -1,6 +1,6 @@
 using Serilog.Events;
 using Serilog;
-using Api;
+using DbdServer;
 
 Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)

@@ -17,10 +17,12 @@ namespace Persistence
             DbContext = new ApplicationDbContext();
             Category = new CategoryRepository(DbContext);
             Perk = new PerkRepository(DbContext);
+            PerkTranslation = new PerkTranslationRepository(DbContext);
         }
 
         public ICategoryRepository Category { get; }
         public IPerkRepository Perk { get; }
+        public IPerkTranslationRepository PerkTranslation { get; set; }
 
         public async Task<int> SaveChangesAsync()
         {
